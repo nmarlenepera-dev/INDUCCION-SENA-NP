@@ -9,9 +9,11 @@ import {
   FileSpreadsheet,
   ShieldCheck,
   GraduationCap,
+  Globe,
 } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
 import { SENA_LOGO_SVG } from '../data/senaRegulationData';
+import { Language, translations } from '../utils/translations';
 
 interface HeaderProps {
   currentTab: 'plan' | 'reglamento' | 'tribunal' | 'evaluacion' | 'certificado' | 'instructor';
@@ -24,6 +26,8 @@ interface HeaderProps {
   certificateUnlocked: boolean;
   darkMode: boolean;
   onToggleDarkMode: () => void;
+  language?: Language;
+  onToggleLanguage?: () => void;
   onOpenSheetsModal: () => void;
   googleConnected: boolean;
   pendingQueueCount?: number;
@@ -43,6 +47,8 @@ export const Header: React.FC<HeaderProps> = ({
   certificateUnlocked,
   darkMode,
   onToggleDarkMode,
+  language = 'es',
+  onToggleLanguage,
   onOpenSheetsModal,
   googleConnected,
   pendingQueueCount = 0,
@@ -50,6 +56,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSwitchRole,
   onRequestInstructorAuth,
 }) => {
+  const t = translations[language];
+
   const toggleSound = () => {
     const next = !soundEnabled;
     setSoundEnabled(next);
@@ -92,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'border-transparent'
               }`}
             >
-              Plan de Inducción
+              {t.tabPlan}
             </button>
             <button
               onClick={() => setCurrentTab('reglamento')}
@@ -102,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'border-transparent'
               }`}
             >
-              Reglamento y Derechos
+              {t.tabRegulations}
             </button>
             <button
               onClick={() => setCurrentTab('tribunal')}
@@ -112,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'border-transparent'
               }`}
             >
-              Tribunal de Casos
+              {t.tabTribunal}
             </button>
             <button
               onClick={() => setCurrentTab('evaluacion')}
@@ -122,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'border-transparent'
               }`}
             >
-              Evaluación Final
+              {t.tabEvaluation}
             </button>
             <button
               onClick={() => setCurrentTab('certificado')}
@@ -132,7 +140,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'border-transparent'
               }`}
             >
-              Certificado Digital
+              {t.tabCertificate}
             </button>
 
             {/* Exclusive Tab for Instructor */}
@@ -145,25 +153,38 @@ export const Header: React.FC<HeaderProps> = ({
                     : 'border-transparent text-slate-800 dark:text-slate-200'
                 }`}
               >
-                Panel Instructor
+                {t.tabInstructorPanel}
               </button>
             )}
           </nav>
 
-          {/* Zone 3: Actions + Quick status + Dark mode toggle */}
+          {/* Zone 3: Actions + Quick status + Dark mode toggle + Language toggle */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div className="hidden lg:flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 tabular-nums">
-              <span className="font-semibold text-slate-800 dark:text-slate-200">Nivel {level}</span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200">{t.level} {level}</span>
               <span aria-hidden="true">·</span>
-              <span>{xp} XP</span>
+              <span>{xp} {t.xp}</span>
               <span aria-hidden="true">·</span>
               <span>{completedPercent}%</span>
             </div>
 
+            {/* Language Switcher Button */}
+            {onToggleLanguage && (
+              <button
+                onClick={onToggleLanguage}
+                title={language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+                className="px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-[#1e5c00] dark:hover:text-[#48c805] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/60 rounded-lg transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer group"
+                aria-label={t.switchLang}
+              >
+                <Globe className="w-3.5 h-3.5 text-[#39A900] dark:text-[#48c805] group-hover:rotate-45 transition-transform" />
+                <span className="font-mono tracking-wider font-extrabold">{t.langLabel}</span>
+              </button>
+            )}
+
             {/* Sound toggle button */}
             <button
               onClick={toggleSound}
-              title={soundEnabled ? 'Silenciar efectos' : 'Activar efectos'}
+              title={soundEnabled ? t.muteSound : t.enableSound}
               className="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
               aria-label="Alternar audio"
             >
@@ -193,10 +214,10 @@ export const Header: React.FC<HeaderProps> = ({
                 <FileSpreadsheet className="w-4 h-4 text-[#39A900] dark:text-[#48c805]" />
                 <span className="hidden xl:inline">
                   {googleConnected
-                    ? 'Auto-Sync Activo'
+                    ? t.autoSyncActive
                     : pendingQueueCount > 0
-                    ? `${pendingQueueCount} en cola`
-                    : 'Google Sheets'}
+                    ? `${pendingQueueCount} ${t.inQueue}`
+                    : t.googleSheets}
                 </span>
                 {googleConnected ? (
                   <span className="w-2 h-2 rounded-full bg-[#39A900] animate-pulse hidden sm:inline" />
@@ -210,11 +231,11 @@ export const Header: React.FC<HeaderProps> = ({
             {userRole === 'instructor' ? (
               <button
                 onClick={onSwitchRole}
-                title="Modo Instructor activo. Haz clic para cambiar a Vista del Aprendiz."
+                title={t.switchRoleTooltip}
                 className="px-2.5 py-1.5 text-xs font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
               >
                 <span className="w-2 h-2 rounded-full bg-[#39A900] animate-pulse" />
-                <span className="hidden sm:inline">Instructor</span>
+                <span className="hidden sm:inline">{t.instructorRoleTag}</span>
                 <span className="text-[10px] text-slate-400">⇄</span>
               </button>
             ) : (
@@ -224,16 +245,16 @@ export const Header: React.FC<HeaderProps> = ({
                 className="px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-[#39A900]" />
-                <span className="hidden sm:inline">Soy Instructor</span>
+                <span className="hidden sm:inline">{t.iAmInstructor}</span>
               </button>
             )}
 
             {/* Dark Mode Toggle Button */}
             <button
               onClick={onToggleDarkMode}
-              title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              title={darkMode ? t.lightMode : t.darkMode}
               className="p-2 text-slate-600 hover:text-slate-900 dark:text-amber-400 dark:hover:text-amber-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all border border-slate-200 dark:border-slate-700/60 shadow-xs"
-              aria-label={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              aria-label={darkMode ? t.lightMode : t.darkMode}
             >
               {darkMode ? (
                 <Sun className="w-4 h-4 transition-transform hover:rotate-45" />
@@ -248,8 +269,8 @@ export const Header: React.FC<HeaderProps> = ({
                 className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 text-xs font-semibold text-white bg-[#39A900] hover:bg-[#2d8500] rounded-lg transition-colors shadow-sm whitespace-nowrap"
               >
                 <Award className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Ver Mi Certificado</span>
-                <span className="sm:hidden">Certificado</span>
+                <span className="hidden sm:inline">{t.viewCertificateBtn}</span>
+                <span className="sm:hidden">{t.certificateShort}</span>
               </button>
             ) : (
               <button
@@ -257,8 +278,8 @@ export const Header: React.FC<HeaderProps> = ({
                 className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors whitespace-nowrap"
               >
                 <FileText className="w-3.5 h-3.5 text-[#39A900] dark:text-[#48c805]" />
-                <span className="hidden sm:inline">Rendir Evaluación</span>
-                <span className="sm:hidden">Evaluación</span>
+                <span className="hidden sm:inline">{t.takeQuizBtn}</span>
+                <span className="sm:hidden">{t.tabEvaluation}</span>
               </button>
             )}
           </div>

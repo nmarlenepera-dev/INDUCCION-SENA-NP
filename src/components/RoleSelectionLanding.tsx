@@ -28,6 +28,8 @@ import {
   SENA_REGIONALES,
 } from '../data/senaRegulationData';
 import { sounds } from '../utils/soundEffects';
+import { Globe } from 'lucide-react';
+import { Language, translations } from '../utils/translations';
 
 interface RoleSelectionLandingProps {
   initialApprenticeData: ApprenticeData;
@@ -35,6 +37,8 @@ interface RoleSelectionLandingProps {
   onSelectInstructor: () => void;
   darkMode: boolean;
   onToggleDarkMode: () => void;
+  language?: Language;
+  onToggleLanguage?: () => void;
 }
 
 const AUTHORIZED_INSTRUCTOR_PASS = 'sena1234';
@@ -45,7 +49,10 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
   onSelectInstructor,
   darkMode,
   onToggleDarkMode,
+  language = 'es',
+  onToggleLanguage,
 }) => {
+  const t = translations[language];
   // Check URL parameters for pre-selected role or ficha
   const [selectedRole, setSelectedRole] = useState<'aprendiz' | 'instructor' | null>(() => {
     if (typeof window !== 'undefined') {
@@ -105,15 +112,15 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
   const handleLearnerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!learnerForm.fullName.trim()) {
-      setLearnerError('Por favor ingresa tus nombres y apellidos completos.');
+      setLearnerError(t.errFullName);
       return;
     }
     if (!learnerForm.documentNumber.trim()) {
-      setLearnerError('Por favor ingresa tu número de documento.');
+      setLearnerError(t.errDocNumber);
       return;
     }
     if (!learnerForm.fichaNumber.trim()) {
-      setLearnerError('Por favor ingresa el número de ficha asignado.');
+      setLearnerError(t.errFichaNumber);
       return;
     }
 
@@ -156,7 +163,7 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
       }
       onSelectInstructor();
     } else {
-      setInstructorError('Clave de instructor incorrecta. Por favor ingresa la clave autorizada: sena1234');
+      setInstructorError(t.errInstructorPass);
       try {
         sounds.playError();
       } catch {
@@ -181,29 +188,44 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-lg sm:text-xl font-bold tracking-tight font-display text-slate-900 dark:text-white">
-                  SENA Inducción
+                  {t.senaTitle}
                 </span>
                 <span className="hidden sm:inline-flex text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-[#1e5c00] dark:text-[#48c805] border border-emerald-300 dark:border-emerald-800">
-                  Acuerdo 0009 de 2024
+                  {t.senaAgreement}
                 </span>
               </div>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Servicio Nacional de Aprendizaje · Dirección de Formación Profesional
+                {t.senaSubtitle}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Language Switcher Button */}
+            {onToggleLanguage && (
+              <button
+                onClick={onToggleLanguage}
+                title={language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-[#1e5c00] dark:hover:text-[#48c805] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all border border-slate-200 dark:border-slate-800 cursor-pointer shadow-2xs group"
+                aria-label={t.switchLang}
+              >
+                <Globe className="w-4 h-4 text-[#39A900] dark:text-[#48c805] group-hover:rotate-45 transition-transform" />
+                <span className="font-mono font-extrabold tracking-wider">{t.langLabel}</span>
+                <span className="hidden sm:inline text-slate-400 font-normal">|</span>
+                <span className="hidden sm:inline text-[11px] text-slate-500 dark:text-slate-400 font-medium">{t.langFull}</span>
+              </button>
+            )}
+
             <button
               onClick={() => setShowVideoModal(true)}
               className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[#1e5c00] dark:text-[#48c805] bg-emerald-100 dark:bg-emerald-950/70 hover:bg-emerald-200 dark:hover:bg-emerald-900 rounded-xl transition-all border border-emerald-200 dark:border-emerald-800 cursor-pointer"
             >
               <PlayCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Ver Tutorial</span>
+              <span className="hidden sm:inline">{t.watchTutorial}</span>
             </button>
             <button
               onClick={onToggleDarkMode}
-              title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              title={darkMode ? t.lightMode : t.darkMode}
               className="p-2.5 text-slate-600 hover:text-slate-900 dark:text-amber-400 dark:hover:text-amber-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all border border-slate-200 dark:border-slate-800 cursor-pointer"
               aria-label="Alternar tema de pantalla"
             >
@@ -218,7 +240,7 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-slate-900 rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl relative">
             <div className="flex items-center justify-between p-4 border-b border-slate-800">
-              <h3 className="text-sm font-semibold text-white">Guía de Inducción SENA</h3>
+              <h3 className="text-sm font-semibold text-white">{t.tutorialTitle}</h3>
               <button 
                 onClick={() => setShowVideoModal(false)}
                 className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
@@ -244,16 +266,15 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs text-[#1e5c00] dark:text-[#48c805] font-semibold">
             <span className="w-2 h-2 rounded-full bg-[#39A900] animate-pulse" />
-            <span>Portal Oficial de Acceso Diferenciado</span>
+            <span>{t.differentiatedPortal}</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white font-display">
-            Bienvenido al Sistema de Inducción SENA
+            {t.welcomeTitle}
           </h1>
 
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-            Para garantizar una experiencia organizada y preservar la privacidad de los datos,
-            selecciona el rol con el que vas a ingresar hoy a la plataforma:
+            {t.welcomeSubtitle}
           </p>
         </div>
 
@@ -275,15 +296,15 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                 </div>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/70 text-[#1e5c00] dark:text-[#48c805] border border-emerald-300 dark:border-emerald-800">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  Sin Contraseña · Acceso Directo
+                  {t.learnerCardBadge}
                 </span>
               </div>
 
               <h2 className="text-2xl font-bold font-display text-slate-900 dark:text-white">
-                Soy Aprendiz SENA
+                {t.learnerCardTitle}
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
-                Ingresa tus datos de caracterización para iniciar tu inducción al reglamento, resolver casos prácticos y certificar tu etapa inicial.
+                {t.learnerCardDesc}
               </p>
             </div>
 
@@ -300,14 +321,14 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                 {/* Full Name */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Nombres y Apellidos Completos <span className="text-[#39A900]">*</span>
+                    {t.fullNameLabel} <span className="text-[#39A900]">*</span>
                   </label>
                   <div className="relative">
                     <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="text"
                       required
-                      placeholder="Ej. Natalia Andrea Morales Rojas"
+                      placeholder={t.fullNamePlaceholder}
                       value={learnerForm.fullName}
                       onChange={(e) => {
                         setLearnerForm({ ...learnerForm, fullName: e.target.value });
@@ -322,7 +343,7 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                   <div className="sm:col-span-5 space-y-1.5">
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Tipo Documento
+                      {t.docTypeLabel}
                     </label>
                     <select
                       value={learnerForm.documentType}
@@ -333,20 +354,20 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                       <option value="T.I.">T.I. (Tarjeta de Identidad)</option>
                       <option value="C.E.">C.E. (Cédula de Extranjería)</option>
                       <option value="PPT">PPT (Permiso Protección Temporal)</option>
-                      <option value="PAS">PAS (Pasaporte)</option>
+                      <option value="PAS">PAS (Pasaporte / Passport)</option>
                     </select>
                   </div>
 
                   <div className="sm:col-span-7 space-y-1.5">
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Número de Documento <span className="text-[#39A900]">*</span>
+                      {t.docNumberLabel} <span className="text-[#39A900]">*</span>
                     </label>
                     <div className="relative">
                       <CreditCard className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="text"
                         required
-                        placeholder="Ej. 1.098.765.432"
+                        placeholder={t.docNumberPlaceholder}
                         value={learnerForm.documentNumber}
                         onChange={(e) => {
                           setLearnerForm({ ...learnerForm, documentNumber: e.target.value });
@@ -362,11 +383,11 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Número de Ficha de Formación <span className="text-[#39A900]">*</span>
+                      {t.fichaLabel} <span className="text-[#39A900]">*</span>
                     </label>
                     {learnerForm.fichaNumber && (
                       <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                        Ficha: {learnerForm.fichaNumber}
+                        {t.fichaPrefix} {learnerForm.fichaNumber}
                       </span>
                     )}
                   </div>
@@ -375,7 +396,7 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                     <input
                       type="text"
                       required
-                      placeholder="Ej. 2874910"
+                      placeholder={t.fichaPlaceholder}
                       value={learnerForm.fichaNumber}
                       onChange={(e) => {
                         setLearnerForm({ ...learnerForm, fichaNumber: e.target.value });
@@ -390,20 +411,20 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Programa de Formación
+                      {t.programLabel}
                     </label>
                     <button
                       type="button"
                       onClick={() => setIsCustomProgram(!isCustomProgram)}
                       className="text-[11px] text-[#39A900] dark:text-[#48c805] hover:underline font-medium cursor-pointer"
                     >
-                      {isCustomProgram ? 'Elegir de la lista' : 'Otro programa'}
+                      {isCustomProgram ? t.chooseFromList : t.customProgramOption}
                     </button>
                   </div>
                   {isCustomProgram ? (
                     <input
                       type="text"
-                      placeholder="Escribe el nombre de tu programa formativo"
+                      placeholder={t.customProgramPlaceholder}
                       value={customProgram}
                       onChange={(e) => setCustomProgram(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#39A900]"
@@ -430,20 +451,20 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Regional / Centro de Formación
+                      {t.regionalLabel}
                     </label>
                     <button
                       type="button"
                       onClick={() => setIsCustomRegional(!isCustomRegional)}
                       className="text-[11px] text-[#39A900] dark:text-[#48c805] hover:underline font-medium cursor-pointer"
                     >
-                      {isCustomRegional ? 'Elegir de la lista' : 'Otra regional'}
+                      {isCustomRegional ? t.chooseFromList : t.customRegionalOption}
                     </button>
                   </div>
                   {isCustomRegional ? (
                     <input
                       type="text"
-                      placeholder="Escribe el nombre de tu Regional y Centro"
+                      placeholder={t.customRegionalPlaceholder}
                       value={customRegional}
                       onChange={(e) => setCustomRegional(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#39A900]"
@@ -469,7 +490,7 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                 <div className="p-3 bg-emerald-50/80 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-900/50 flex items-start gap-2.5 text-[11px] text-emerald-900 dark:text-emerald-200">
                   <Info className="w-4 h-4 shrink-0 text-[#39A900] mt-0.5" />
                   <p>
-                    Tus datos se sincronizarán automáticamente con tu <strong>Certificado Digital Oficial</strong> y la lista de control del instructor al finalizar.
+                    {t.learnerNotice}
                   </p>
                 </div>
 
@@ -478,7 +499,7 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                   type="submit"
                   className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-[#39A900] hover:bg-[#2d8500] active:scale-[0.99] transition-all shadow-md shadow-[#39A900]/25 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>Comenzar Mi Inducción SENA</span>
+                  <span>{t.startInductionBtn}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </form>
@@ -501,15 +522,15 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                 </div>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
                   <Lock className="w-3.5 h-3.5 text-amber-500" />
-                  Privilegiado · Requiere Clave
+                  {t.instructorCardBadge}
                 </span>
               </div>
 
               <h2 className="text-2xl font-bold font-display text-slate-900 dark:text-white">
-                Soy Instructor SENA
+                {t.instructorCardTitle}
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
-                Acceso exclusivo para instructores y líderes formativos: monitoreo de aprendices, resguardo automático en Google Drive y generación de enlaces de ficha.
+                {t.instructorCardDesc}
               </p>
             </div>
 
@@ -525,14 +546,14 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
               <form onSubmit={handleInstructorSubmit} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Clave de Acceso Institucional del Instructor <span className="text-[#39A900]">*</span>
+                    {t.instructorPassLabel} <span className="text-[#39A900]">*</span>
                   </label>
                   <div className="relative">
                     <KeyRound className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
-                      placeholder="Ingresa la clave (ej. sena1234)"
+                      placeholder={t.instructorPassPlaceholder}
                       value={instructorPassword}
                       onChange={(e) => {
                         setInstructorPassword(e.target.value);
@@ -553,29 +574,27 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                 {/* Privileges List */}
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-800 space-y-2.5">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
-                    Privilegios del Rol Instructor:
+                    {t.privilegesTitle}
                   </span>
                   <div className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#39A900] shrink-0" />
-                      <span>Conectar y autorizar Google Sheets y Drive en segundo plano</span>
+                      <span>{t.privilege1}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#39A900] shrink-0" />
-                      <span>Monitorear tabla de calificaciones y aprendices aprobados</span>
+                      <span>{t.privilege2}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#39A900] shrink-0" />
-                      <span>Generar enlaces directos para aprendices por número de ficha</span>
+                      <span>{t.privilege3}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#39A900] shrink-0" />
-                      <span>Exportar planillas de cumplimiento a formato CSV oficial</span>
+                      <span>{t.privilege4}</span>
                     </div>
                   </div>
                 </div>
-
-                {/* Password input already exists, removing reveal and autofill box */}
 
                 {/* Submit Action */}
                 <button
@@ -583,7 +602,7 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
                   className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white dark:text-slate-900 active:scale-[0.99] transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <ShieldCheck className="w-4 h-4 text-[#39A900]" />
-                  <span>Ingresar al Portal del Instructor</span>
+                  <span>{t.enterInstructorBtn}</span>
                 </button>
               </form>
             </div>
@@ -593,13 +612,14 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
         {/* Footer info in landing */}
         <div className="mt-12 text-center text-xs text-slate-500 dark:text-slate-400 space-y-1">
           <p>
-            Sistema Institucional de Inducción · Servicio Nacional de Aprendizaje SENA · República de Colombia
+            {t.landingFooter}
           </p>
           <p className="text-[11px] text-slate-400 dark:text-slate-500">
-            Los datos ingresados son confidenciales y se procesan exclusivamente con fines académicos institucionales bajo el Acuerdo 0009 de 2024.
+            {t.landingPrivacy}
           </p>
         </div>
       </main>
     </div>
   );
 };
+

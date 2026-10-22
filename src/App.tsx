@@ -40,10 +40,34 @@ import {
   ChevronRight,
   GraduationCap,
 } from 'lucide-react';
+import { Language, translations } from './utils/translations';
+import { sounds } from './utils/soundEffects';
 
 const HERO_IMG = '/src/assets/images/hero_sena_induction_1792526595203.jpg';
 
 export default function App() {
+  // Language State: 'es' vs 'en' with persistence
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sena_language');
+      if (saved === 'en' || saved === 'es') return saved as Language;
+    }
+    return 'es';
+  });
+
+  const toggleLanguage = () => {
+    const nextLang: Language = language === 'es' ? 'en' : 'es';
+    setLanguage(nextLang);
+    localStorage.setItem('sena_language', nextLang);
+    try {
+      sounds.playSuccess();
+    } catch {
+      // ignore
+    }
+  };
+
+  const t = translations[language];
+
   // User Role State: 'aprendiz' vs 'instructor' vs null (landing)
   const [userRole, setUserRole] = useState<'aprendiz' | 'instructor' | null>(() => {
     if (typeof window !== 'undefined') {
@@ -343,6 +367,8 @@ export default function App() {
           onSelectInstructor={handleSelectInstructor}
           darkMode={darkMode}
           onToggleDarkMode={toggleDarkMode}
+          language={language}
+          onToggleLanguage={toggleLanguage}
         />
       ) : (
         <>
@@ -358,6 +384,8 @@ export default function App() {
             certificateUnlocked={certificateUnlocked}
             darkMode={darkMode}
             onToggleDarkMode={toggleDarkMode}
+            language={language}
+            onToggleLanguage={toggleLanguage}
             onOpenSheetsModal={() => setShowSheetsModal(true)}
             googleConnected={!!currentUser}
             pendingQueueCount={pendingQueueCount}
@@ -386,15 +414,13 @@ export default function App() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-xs text-emerald-400 font-mono">
                     <span className="w-2 h-2 rounded-full bg-[#39A900]" />
-                    <span>SENA Colombia · Dirección de Formación Profesional</span>
+                    <span>{t.bannerTag}</span>
                   </div>
                   <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight font-display text-white">
-                    Inducción y Reglamento del Aprendiz
+                    {t.bannerTitle}
                   </h1>
                   <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl">
-                    Bienvenido a la comunidad SENA. Conoce tus derechos académicos y de bienestar,
-                    comprende tus deberes éticos, resuelve dilemas reales y obtén tu acreditación
-                    oficial de inducción para iniciar con éxito tu etapa lectiva.
+                    {t.bannerDesc}
                   </p>
                 </div>
 
@@ -404,7 +430,7 @@ export default function App() {
                     className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 bg-white hover:bg-slate-100 rounded-lg transition-colors whitespace-nowrap shadow-xs"
                   >
                     <BookOpen className="w-3.5 h-3.5 text-[#39A900]" />
-                    <span>Ver Plan Estructurado</span>
+                    <span>{t.viewStructuredPlan}</span>
                   </button>
 
                   <button
@@ -412,7 +438,7 @@ export default function App() {
                     className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#39A900] hover:bg-[#2d8500] rounded-lg transition-colors whitespace-nowrap shadow-xs"
                   >
                     <Scale className="w-3.5 h-3.5" />
-                    <span>Tribunal de Casos</span>
+                    <span>{t.tribunalOfCases}</span>
                   </button>
 
                   <button
@@ -420,7 +446,7 @@ export default function App() {
                     className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-300 hover:text-white bg-white/10 hover:bg-white/15 rounded-lg transition-colors whitespace-nowrap"
                   >
                     <Award className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Insignias ({badges.filter((b) => b.unlocked).length}/{badges.length})</span>
+                    <span>{t.badgesCount} ({badges.filter((b) => b.unlocked).length}/{badges.length})</span>
                   </button>
                 </div>
               </div>
@@ -435,7 +461,7 @@ export default function App() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-slate-900 via-transparent to-transparent opacity-80" />
                 <div className="absolute bottom-3 right-3 text-[11px] text-white/80 bg-black/40 backdrop-blur-xs px-2.5 py-1 rounded">
-                  Ambiente de Aprendizaje SENA
+                  {t.learningEnvironment}
                 </div>
               </div>
             </div>
@@ -518,20 +544,20 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-4 text-slate-400 dark:text-slate-500">
-            <span>Reglamento del Aprendiz (Acuerdo 0009 de 2024)</span>
+            <span>{t.regulationsFooter}</span>
             <span aria-hidden="true">·</span>
             <button
               onClick={() => setCurrentTab('plan')}
               className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
             >
-              Plan Pedagógico
+              {t.planPedagogic}
             </button>
             <span aria-hidden="true">·</span>
             <button
               onClick={() => setShowBadgesModal(true)}
               className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
             >
-              Ver Insignias
+              {t.viewBadges}
             </button>
             <span aria-hidden="true">·</span>
             {userRole === 'aprendiz' ? (
@@ -540,7 +566,7 @@ export default function App() {
                 className="hover:text-[#39A900] dark:hover:text-[#48c805] font-semibold text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-1"
               >
                 <Shield className="w-3 h-3 text-[#39A900]" />
-                <span>Acceso Instructor</span>
+                <span>{t.iAmInstructor}</span>
               </button>
             ) : (
               <button
@@ -548,7 +574,7 @@ export default function App() {
                 className="hover:text-emerald-700 dark:hover:text-emerald-400 font-semibold text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-1"
               >
                 <GraduationCap className="w-3.5 h-3.5 text-[#39A900]" />
-                <span>Modo: Instructor (Cambiar)</span>
+                <span>{t.exitRole}</span>
               </button>
             )}
           </div>
