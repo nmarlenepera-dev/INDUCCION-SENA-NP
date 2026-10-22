@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+  h1, h2, h3, .font-display {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+.font-serif-cert {
+  font-family: 'Cinzel', serif;
+}
+
+.font-script-cert {
+  font-family: 'Alex Brush', cursive;
+}
+
+/* Screen blur transition effect when toggling theme */
+@keyframes screenThemeBlur {
+  0% {
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    opacity: 0;
+  }
+  40% {
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    opacity: 1;
+  }
+  100% {
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    opacity: 0;
+  }
+}
+
+.theme-transition-blur {
+  animation: screenThemeBlur 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #sena-official-certificate, #sena-official-certificate * {
+    visibility: visible;
+  }
+  #sena-official-certificate {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    box-shadow: none !important;
+    border: none !important;
+    background-color: white !important;
+    color: #0f172a !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

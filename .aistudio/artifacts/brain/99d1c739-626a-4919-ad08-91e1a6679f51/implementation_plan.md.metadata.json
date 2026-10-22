@@ -1,0 +1,6 @@
+{
+  "summary":  "Plan estructurado para la sincronización automática y desatendida del prototipo de inducción SENA con Google Sheets y Google Drive, incluyendo cola local offline y auto-registro al culminar.",
+  "updatedAt":  "2026-10-21T15:47:10.257805315Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
